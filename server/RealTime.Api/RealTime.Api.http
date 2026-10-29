@@ -1,0 +1,26 @@
+@host = http://localhost:5000
+
+### 1) Get a dev token
+# @name login
+POST {{host}}/api/auth/token
+Content-Type: application/json
+
+{ "userName": "alice" }
+
+### 2) List rooms (anonymous)
+GET {{host}}/api/rooms
+
+### 3) Who is online? (needs token)
+GET {{host}}/api/presence
+Authorization: Bearer {{login.response.body.accessToken}}
+
+### 4) Start a background job - progress is pushed over SignalR to alice's connections
+POST {{host}}/api/jobs
+Authorization: Bearer {{login.response.body.accessToken}}
+Content-Type: application/json
+
+{ "name": "Import claims.xlsx", "totalSteps": 15 }
+
+### 5) Negotiate manually (what the JS client does first)
+POST {{host}}/hubs/chat/negotiate?negotiateVersion=1
+Authorization: Bearer {{login.response.body.accessToken}}
